@@ -15,11 +15,10 @@ exports.auth = (req, res, next) => {
         })
     }
     let token = req.headers.authorization.replace(/['"]+/g, '');
-    console.log(blacklist);
     if (blacklist.has(token)) {
         return res.status(401).send({
             status: 'Error',
-            error: 'You have logged out'
+            error: 'Login to continue'
         })
     }
     let payload = jwt.decode(token, secret);

@@ -8,6 +8,9 @@ router.get('/test', check.auth, UserController.testUser);
 router.post('/signup', UserController.signup);
 router.post('/login', UserController.login)
 router.post('/logout', UserController.logout);
+router.get('/profile/:id?', check.auth, UserController.profile);
+router.put('/editProfile', check.auth, UserController.editProfile);
+router.put('/changePassword', check.auth, UserController.changePassword);
 
 module.exports = router;
 

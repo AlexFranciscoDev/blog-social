@@ -85,8 +85,6 @@ const login = (req, res) => {
             })
         }
         const token = jwt.createToken(user);
-        // req.user.token = token;
-        // Comprobar su contraseña
         return res.status(200).send({
             status: 'Success',
             message: 'User found',
@@ -100,13 +98,6 @@ const login = (req, res) => {
             error: error.message
         })
     })
-    // Si es correcta devolvemos el token
-    // Devolver datos del usuario
-    // return res.status(200).send({
-    //     status: 'Success',
-    //     message: 'User logged in succesfully',
-    //     params
-    // })
 }
 
 const logout = (req, res) => {
@@ -118,7 +109,6 @@ const logout = (req, res) => {
         })
     }
     blacklist.add(tokenToInvalidate);
-    console.log(blacklist);
     return res.status(200).send({
         status: 'Success',
         message: 'Loggin out',
@@ -127,10 +117,75 @@ const logout = (req, res) => {
     })
 }
 
+const profile = (req, res) => {
+    let userId = req.user.id;
+    const params = req.params;
+
+    if (params.id) userId = params.id;
+
+    User.findOne({_id: userId})
+    .select({password: 0, __v: 0, role: 0})
+    .then((user) => {
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Showing profile data',
+            user
+        })
+    })
+    .catch((error) => {
+        return res.status(400).send({
+            status: 'Error',
+            message: 'User not found',
+            error: error.message
+        })
+    })
+}
+
+const editProfile = (req, res) => {
+    const userId = req.user.id;
+    const params = req.body;
+    const { name, surname, nick, email} = params;
+    const updatedProfile = {}
+    
+    if (name) updatedProfile.name = name;
+    if (surname) updatedProfile.surname = surname;
+    if (nick) updatedProfile.nick = nick;
+    if (email) updatedProfile.email = email;
+
+    User.findOneAndUpdate({_id: userId}, updatedProfile, {new: true})
+    .then((userUpdated) => {
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Editing data',
+            userUpdated
+        })
+    })
+    // TODO: EDIT PROFILE PICTURE
+}
+
+const changePassword = (req, res) => {
+    const userLogged = req.user.id;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword
+    if (!password || !confirmPassword) return res.status(400).send({status: 'Error', message: 'Fill the fields with the new password'})
+    if (password !== confirmPassword) return res.status(400).send({status: 'Error', message: 'The passwords do not match'})
+    
+    // CHECK: we have to encrypt the new passoword but first FIND the user  let newPassword = await bcrypt.hash(password, 10);
+    console.log(newPassword);
+    return res.status(200).send({
+        status: 'Success',
+        message: 'Updating password',
+        newPassword
+    })
+}
+
 
 module.exports = {
     testUser,
     signup,
     login,
-    logout
+    logout,
+    profile,
+    editProfile,
+    changePassword
 }
