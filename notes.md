@@ -11,6 +11,9 @@
 * **editProfile**: Permite al usuario editar su perfil.
 * **changePassword**: Permite al usuario cambiar su contraseña.
 * **deleteAccount**: Permite al usuario eliminar su cuenta.
+* **uploadImage**: Subir imagen de perfil
+* **getProfileImg**: Mostrar imagen de perfil
+
 
 ### Post
 
@@ -20,6 +23,9 @@
 * **editPost**: Permite al autor de una publicación editarla.
 * **deletePost**: Permite al autor de una publicación eliminarla.
 * **getPostsByUser**: Obtiene todas las publicaciones de un usuario específico.
+* **uploadImage**: Subir imagen de publicacion
+* **returnImage**: Devolver imagen de publicacion
+
 
 ### Comentario
 
