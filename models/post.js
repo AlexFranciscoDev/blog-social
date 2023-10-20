@@ -1,12 +1,13 @@
-const { Schema, model } = required('mongoose');
+const { Schema, model } = require('mongoose');
 
 const PostSchema = Schema({
     title: {
         type: 'string',
-        required
+        required: true
     },
     content: {
-        type: 'string'
+        type: 'string',
+        required: true
     },
     image: {
         type: 'string',
@@ -15,7 +16,7 @@ const PostSchema = Schema({
     author: {
         type: Schema.ObjectId,
         ref: 'User',
-        required
+        required: true
     },
     comments: [
         {
@@ -25,7 +26,7 @@ const PostSchema = Schema({
     ],
     created_at: {
         type: 'Date',
-        default: new Date.now()
+        default: Date.now()
     }
 })
 

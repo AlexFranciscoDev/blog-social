@@ -6,12 +6,6 @@ const path = require('path'); // Use absolute path
 
 // Tokens invalidos
 const { blacklist } = require('../middlewares/auth');
-const testUser = (req, res) => {
-    return res.status(200).send({
-        status: 'Success',
-        message: 'User controller'
-    })
-}
 
 /**
  * signup
@@ -58,7 +52,11 @@ const signup = (req, res) => {
     })
 }
 
-// Login de usuarios
+/**
+ * login
+ * 
+ * Login user
+ */
 const login = (req, res) => {
     // Recoger los datos
     const params = req.body;
@@ -102,6 +100,11 @@ const login = (req, res) => {
     })
 }
 
+/**
+ * logout
+ * 
+ * Logout user
+ */
 const logout = (req, res) => {
     const tokenToInvalidate = req.body.token;
     if (blacklist.has(tokenToInvalidate)) {
@@ -119,6 +122,11 @@ const logout = (req, res) => {
     })
 }
 
+/**
+ * profile
+ * 
+ * Display user data
+ */
 const profile = (req, res) => {
     let userId = req.user.id;
     const params = req.params;
@@ -143,6 +151,11 @@ const profile = (req, res) => {
     })
 }
 
+/**
+ * editProfile
+ * 
+ * Edit user profile data
+ */
 const editProfile = (req, res) => {
     const userId = req.user.id;
     const params = req.body;
@@ -165,6 +178,11 @@ const editProfile = (req, res) => {
     // TODO: EDIT PROFILE PICTURE
 }
 
+/**
+ * changePassword
+ * 
+ * Change logged users password
+ */
 const changePassword = async (req, res) => {
     const userLogged = req.user.id;
     const params = req.body;
@@ -207,6 +225,11 @@ const changePassword = async (req, res) => {
     })
 }
 
+/**
+ * deleteUser
+ * 
+ * Delete the logged in user
+ */
 const deleteUser = (req, res) => {
     const userId = req.user.id;
     User.findOneAndDelete({_id: userId})
@@ -226,6 +249,11 @@ const deleteUser = (req, res) => {
     })
 }
 
+/**
+ * upload
+ * 
+ * Upload profile image
+ */
 const upload = (req, res) => {
     if (!req.file) {
         return res.status(400).send({
@@ -262,6 +290,11 @@ const upload = (req, res) => {
     })
 }
 
+/**
+ * getProfileImage
+ * 
+ * Display profile image
+ */
 const getProfileImg = (req, res) => {
     const file = req.params.filename;
     const filePath = './uploads/avatars/' + file;
@@ -279,7 +312,6 @@ const getProfileImg = (req, res) => {
 
 
 module.exports = {
-    testUser,
     signup,
     login,
     logout,
