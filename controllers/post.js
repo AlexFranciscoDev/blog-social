@@ -1,13 +1,37 @@
 const Post = require('../models/post');
 const fs = require('fs');
 
-const getAllPosts = (req, res) => {
-    return res.status(200).send({
-        status: 'Success',
-        message: 'Getting all posts'
-    })
+/**
+ * getAllPosts
+ * 
+ * return all the posts
+ */
+const getAllPosts = async (req, res) => {
+    try {
+        const posts = await Post.find().populate('author', 'nick email');
+        if (posts.length <= 0) {
+            return req.status(200).send({ status: 'Success', message: 'No posts found' })
+        }
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Getting all posts',
+            posts: posts
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Error, something went wrong',
+            error: error
+        })
+    }
 }
 
+/**
+ * createPost
+ * 
+ * create a new post
+ */
 const createPost = (req, res) => {
     const params = req.body;
     if (!params.title || !params.content) {
@@ -51,8 +75,45 @@ const createPost = (req, res) => {
         })
 }
 
+/**
+ * getSinglePost
+ * 
+ * return a single post
+ */
+const getPostById = async (req, res) => {
+    const postId = req.params.id;
+    try {
+        const postFound = await Post.findOne({_id: postId})
+        if (!postFound) {
+            return res.status(400).send({
+                status: 'Error',
+                message: 'Post not found',
+                error: error.message
+            })
+        }
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Getting one post',
+            post: postFound
+        })
+    } catch (error) {
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal server error',
+            error: error.message
+        })
+    }
+}
+
+/**
+ * getPostsByUser
+ * 
+ * return a single post
+ */
+
 
 module.exports = {
     getAllPosts,
-    createPost
+    createPost,
+    getPostById
 }

@@ -16,7 +16,8 @@ const storage = multer.diskStorage({
 const uploads = multer({storage});
 
 // Define route
-router.get('/posts', check.auth, PostController.getAllPosts);
+router.get('/', check.auth, PostController.getAllPosts);
+router.get('/singlePost/:id', check.auth, PostController.getPostById);
 router.post('/save', [check.auth, uploads.single('featuredImage')], PostController.createPost);
 
 module.exports = router;
