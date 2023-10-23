@@ -1,4 +1,5 @@
 const Post = require('../models/post');
+const User = require('../models/user');
 const fs = require('fs');
 
 /**
@@ -76,6 +77,22 @@ const createPost = (req, res) => {
 }
 
 /**
+ * editPost
+ * 
+ * Edit a single post
+ */
+const editPost = (req, res) => {
+    // Get params
+    const params = req.body;
+    
+    return res.status(200).send({
+        status: 'Success',
+        message: 'Editing post',
+        params: params
+    })
+}
+
+/**
  * getSinglePost
  * 
  * return a single post
@@ -110,10 +127,43 @@ const getPostById = async (req, res) => {
  * 
  * return a single post
  */
-
+const getPostsByUser = async (req, res) => {
+    try {
+        // If we pass an argument we find for this user, otherwise we find for the logged in user
+        let userId = req.user.id;
+        if (req.params.id) userId = req.params.id;
+        if (!req.user) {
+            return res.status(401).send({
+                status: 'Error',
+                message: 'User not logged in'
+            })
+        }
+        const posts = await Post.find({ author: userId })
+        if (posts.length === 0) {
+            return res.status(404).send({
+                status: 'Success',
+                message: 'Posts not found'
+            })
+        }
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Getting posts by user',
+            user: userId,
+            posts
+        })
+    } catch (error) {
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal server error',
+            error: error
+        })
+    }
+}
 
 module.exports = {
     getAllPosts,
     createPost,
-    getPostById
+    editPost,
+    getPostById,
+    getPostsByUser
 }

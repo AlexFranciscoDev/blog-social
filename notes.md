@@ -23,7 +23,6 @@
 * **editPost**: Permite al autor de una publicación editarla.
 * **deletePost**: Permite al autor de una publicación eliminarla.
 * **getPostsByUser**: Obtiene todas las publicaciones de un usuario específico.
-* **uploadImage**: Subir imagen de publicacion
 * **returnImage**: Devolver imagen de publicacion
 
 
