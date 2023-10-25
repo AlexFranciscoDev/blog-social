@@ -3,7 +3,7 @@ const User = require('../models/user');
 const fs = require('fs');
 const { ObjectId } = require('mongoose').Types;
 // Services
-const getPostService = require('../services/getPostService');
+const postService = require('../services/postService');
 
 /**
  * getAllPosts
@@ -105,23 +105,17 @@ const editPost = async (req, res) => {
     let postToEdit;
     try {
         // Get the post to edit
-        postToEdit = await getPostService.getPostById(postId);
+        postToEdit = await postService.getPostById(postId);
         // Check if its not my post
-        // Otherwise we update the post
-        const userId = new ObjectId(req.user.id);
-        if (!userId.equals(postToEdit.author)) {
-            return res.status(401).send({
-                status: 'Error',
-                message: 'You are not allowed to edit this post'
-            })
-        } else {
-            const update = await Post.findOneAndUpdate({_id: postId}, updatedPost, {new: true})
+        if(postService.compareUserAuthor(req.user.id, postToEdit.author)) {
+            const update = await Post.findOneAndUpdate({ _id: postId }, updatedPost, { new: true })
             return res.status(200).send({
                 status: 'Success',
                 message: 'Editing post',
                 updatedPost: update
             })
         }
+
 
     } catch (error) {
         // Check if the post exists
@@ -145,7 +139,7 @@ const editPost = async (req, res) => {
 const getPostById = async (req, res) => {
     const postId = req.params.id;
     try {
-        const postFound = await getPostService.getPostById(postId);
+        const postFound = await postService.getPostById(postId);
         if (!postFound) {
             return res.status(400).send({
                 status: 'Error',
