@@ -1,6 +1,9 @@
 const Post = require('../models/post');
 const User = require('../models/user');
 const fs = require('fs');
+const { ObjectId } = require('mongoose').Types;
+// Services
+const getPostService = require('../services/getPostService');
 
 /**
  * getAllPosts
@@ -54,24 +57,33 @@ const createPost = (req, res) => {
             message: 'File extension not supported'
         })
     }
+    // Create post object
     const newPost = new Post({
         title: params.title,
         content: params.content,
         image: req.file.filename,
         author: req.user.id
     });
+
     newPost.save()
-        .then((userSaved) => {
+        .then(async (postSaved) => {
+            return User.findOneAndUpdate(
+                { _id: req.user.id },
+                { $push: { posts: postSaved } }
+            );
+        })
+        .then((postSaved) => {
             return res.status(200).send({
                 status: 'Success',
                 message: 'Creating post',
-                userSaved: userSaved
+                postSaved: postSaved
             })
         })
         .catch((error) => {
             return res.status(400).send({
                 status: 'Error',
-                message: 'Can\'t create post'
+                message: 'Can\'t create post',
+                error: error.message
             })
         })
 }
@@ -81,15 +93,48 @@ const createPost = (req, res) => {
  * 
  * Edit a single post
  */
-const editPost = (req, res) => {
+const editPost = async (req, res) => {
     // Get params
     const params = req.body;
-    
-    return res.status(200).send({
-        status: 'Success',
-        message: 'Editing post',
-        params: params
-    })
+    const postId = req.params.id;
+    const { title, content } = params;
+    // Create updated post
+    const updatedPost = {}
+    if (title) updatedPost.title = title;
+    if (content) updatedPost.content = content;
+    let postToEdit;
+    try {
+        // Get the post to edit
+        postToEdit = await getPostService.getPostById(postId);
+        // Check if its not my post
+        // Otherwise we update the post
+        const userId = new ObjectId(req.user.id);
+        if (!userId.equals(postToEdit.author)) {
+            return res.status(401).send({
+                status: 'Error',
+                message: 'You are not allowed to edit this post'
+            })
+        } else {
+            const update = await Post.findOneAndUpdate({_id: postId}, updatedPost, {new: true})
+            return res.status(200).send({
+                status: 'Success',
+                message: 'Editing post',
+                updatedPost: update
+            })
+        }
+
+    } catch (error) {
+        // Check if the post exists
+        if (!postToEdit) {
+            return res.status(404).send({ status: 'Error', message: 'Post not found' })
+        }
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal Server Error',
+            error: error.message
+        })
+    }
+
 }
 
 /**
@@ -100,7 +145,7 @@ const editPost = (req, res) => {
 const getPostById = async (req, res) => {
     const postId = req.params.id;
     try {
-        const postFound = await Post.findOne({_id: postId})
+        const postFound = await getPostService.getPostById(postId);
         if (!postFound) {
             return res.status(400).send({
                 status: 'Error',

@@ -10,6 +10,8 @@ const createToken = (user) => {
         surname: user.surname,
         nick: user.nick,
         email: user.email,
+        posts: user.posts,
+        comments: user.comments,
         role: user.role,
         image: user.image,
         iat: moment().unix(),
