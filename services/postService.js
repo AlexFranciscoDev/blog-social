@@ -15,7 +15,7 @@ const compareUserAuthor = (user, author) => {
     try {
         const userId = new ObjectId(user);
         if (!userId.equals(author)) {
-            throw new Error('You can\'t edit this post');
+            throw new Error('You are not allowed to access this post');
         }
         return true; 
     } catch (error) {

@@ -21,6 +21,8 @@ router.get('/singlePost/:id', check.auth, PostController.getPostById);
 router.get('/user/:id', check.auth, PostController.getPostsByUser);
 router.post('/save', [check.auth, uploads.single('featuredImage')], PostController.createPost);
 router.put('/edit/:id', check.auth, PostController.editPost);
-
+router.delete('/delete/:id', check.auth, PostController.deletePost);
+router.post('/upload/:id', [check.auth, uploads.single('featuredImage')], PostController.upload);
+router.get('/postImage/:filename', check.auth, PostController.getImage);
 module.exports = router;
 

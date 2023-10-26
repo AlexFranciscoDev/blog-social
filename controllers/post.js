@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const User = require('../models/user');
 const fs = require('fs');
+const path = require('path');
 const { ObjectId } = require('mongoose').Types;
 // Services
 const postService = require('../services/postService');
@@ -107,7 +108,7 @@ const editPost = async (req, res) => {
         // Get the post to edit
         postToEdit = await postService.getPostById(postId);
         // Check if its not my post
-        if(postService.compareUserAuthor(req.user.id, postToEdit.author)) {
+        if (postService.compareUserAuthor(req.user.id, postToEdit.author)) {
             const update = await Post.findOneAndUpdate({ _id: postId }, updatedPost, { new: true })
             return res.status(200).send({
                 status: 'Success',
@@ -115,8 +116,6 @@ const editPost = async (req, res) => {
                 updatedPost: update
             })
         }
-
-
     } catch (error) {
         // Check if the post exists
         if (!postToEdit) {
@@ -130,6 +129,39 @@ const editPost = async (req, res) => {
     }
 
 }
+
+/**
+ * deletePost
+ * 
+ * return a single post
+ */
+const deletePost = async (req, res) => {
+    const postId = req.params.id;
+    let postToDelete;
+    try {
+        // Get post to delete
+        postToDelete = await postService.getPostById(postId);
+        // Check if its not my post
+        if (postService.compareUserAuthor(req.user.id, postToDelete.author)) {
+            const deletedPost = await Post.findOneAndDelete({ _id: postId });
+            return res.status(200).send({
+                status: 'Success',
+                message: 'Deleting post',
+                postDeleted: postToDelete
+            })
+        }
+    } catch (error) {
+        if (!postToDelete) {
+            return res.status(404).send({ status: 'Error', message: 'Post not found' })
+        }
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal Server Error',
+            error: error.message
+        })
+    }
+}
+
 
 /**
  * getSinglePost
@@ -199,10 +231,88 @@ const getPostsByUser = async (req, res) => {
     }
 }
 
+/**
+ * upload
+ * 
+ * Upload image 
+ */
+const upload = async (req, res) => {
+    const postId = req.params.id;
+    if (!req.file) {
+        return res.status(404).send({
+            status: 'Error',
+            message: 'File not found'
+        })
+    }
+    let image = req.file.originalname;
+    let imageSplit = image.split('\.');
+    let extension = imageSplit[1];
+    let filePath;
+    if (extension !== 'jpg' && extension !== 'png' && extension !== 'jpeg' && extension !== 'gif') {
+        filePath = req.file.path;
+        fs.unlinkSync(filePath);
+        return res.status(400).send({
+            status: 'Error',
+            message: 'File extension not supported'
+        })
+    }
+
+    let postToEdit;
+    try {
+        // Get the post to edit
+        let postToEdit = await postService.getPostById(postId);
+        // Check if its not my post
+        if (postService.compareUserAuthor(req.user.id, postToEdit.author)) {
+            console.log('entrando en condicion');
+            const update = await Post.findOneAndUpdate({ _id: postId }, { image: req.file.filename }, { new: true })
+            return res.status(200).send({
+                status: 'Success',
+                message: 'Editing image post',
+                updatedPost: update
+            })
+        }
+    } catch (error) {
+        // Check if the post exists
+        if (!postToEdit) {
+            filePath = req.file.path;
+            fs.unlinkSync(filePath);
+            return res.status(404).send({ status: 'Error', message: 'Post not found' })
+        }
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal Server Error',
+            error: error.message
+        })
+    }
+
+}
+
+/**
+ * getImage
+ * 
+ * Display profile image
+ */
+const getImage = (req, res) => {
+    const file = req.params.filename;
+    const filePath = './uploads/posts/' + file;
+    fs.stat(filePath, (error, exists) => {
+        if (!exists) {
+            return res.status(404).send({
+                status: 'Error',
+                message: 'Image not found'
+            })
+        }
+    })
+    return res.sendFile(path.resolve(filePath));
+}
+
 module.exports = {
     getAllPosts,
     createPost,
     editPost,
+    deletePost,
     getPostById,
-    getPostsByUser
+    getPostsByUser,
+    upload,
+    getImage
 }

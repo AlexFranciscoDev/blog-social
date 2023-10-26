@@ -264,7 +264,6 @@ const upload = (req, res) => {
     let image = req.file.originalname;
     let imageSplit = image.split('\.');
     let extension = imageSplit[1];
-    console.log('extension: ' + extension);
     if (extension !== 'jpg' && extension !== 'png' && extension !== 'jpeg' && extension !== 'gif') {
         const filePath = req.file.path;
         const fileDelete = fs.unlinkSync(filePath);
