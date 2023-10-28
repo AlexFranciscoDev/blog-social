@@ -1,19 +1,19 @@
-const { Schema, model } = required('mongoose');
+const { Schema, model } = require('mongoose');
 
 const CommentSchema = Schema({
     content: {
         type: 'string',
-        required
+        required: true
     },
     author: {
         type: Schema.ObjectId,
         ref: 'User',
-        required
+        required: true
     },
     post: {
         type: Schema.ObjectId,
         ref: 'Post',
-        required
+        required: true
     },
     parentComment: {
         type: Schema.ObjectId,
