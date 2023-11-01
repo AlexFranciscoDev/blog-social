@@ -4,5 +4,7 @@ const CommentController = require('../controllers/comment');
 const check = require('../middlewares/auth');
 
 router.post('/save/:postId', check.auth, CommentController.newComment);
+router.put('/edit/:id', check.auth, CommentController.editComment);
+router.delete('/delete/:id', check.auth, CommentController.deleteComment);
 
 module.exports = router;

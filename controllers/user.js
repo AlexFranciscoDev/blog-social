@@ -175,7 +175,6 @@ const editProfile = (req, res) => {
             userUpdated
         })
     })
-    // TODO: EDIT PROFILE PICTURE
 }
 
 /**
