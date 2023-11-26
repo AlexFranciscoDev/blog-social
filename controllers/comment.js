@@ -42,6 +42,11 @@ const newComment = async (req, res) => {
     }
 }
 
+/**
+ * editComment
+ * 
+ * edit my comment
+ */
 const editComment = async (req, res) => {
     // Check params
     const params = req.body;
@@ -86,6 +91,11 @@ const editComment = async (req, res) => {
     }
 }
 
+/**
+ * deleteComment
+ * 
+ * delete my comment
+ */
 const deleteComment = async (req, res) => {
     try {
         const commentId = req.params.id;
@@ -110,8 +120,12 @@ const deleteComment = async (req, res) => {
                 message: 'You are not allowed to delete this comment'
             })
         }
-        // Delete the comment
-        Comment.findOneAndDelete({_id: commentId})
+        // Delete the commentt from user table
+        const userUpdated = await User.findOneAndUpdate({ _id: req.user.id},
+            { $pull: {comments: commentId} },
+            { new: true })
+        // Delete the comment from comment table
+        await Comment.findOneAndDelete({_id: commentId})
         .then((commentDeleted) => {
             return res.status(200).send({
                 status: 'Success',
@@ -129,8 +143,61 @@ const deleteComment = async (req, res) => {
     }
 }
 
+const replyToComment = async (req, res) => {
+    // Get id of the comment and the content
+    const commentId = req.params.id;
+    const content = req.body.content;
+    try {
+        if (!content) {
+            return res.status(404).send({
+                status: 'Error',
+                message: 'Fill all the required fields'
+            })
+        }
+        // Check if the parent comment exist
+        const parentComment = await Comment.findById(commentId).exec();
+        
+        if (!parentComment) {
+            return res.status(404).send({
+                status: 'Error',
+                message: 'Comment not found'
+            })
+        }
+        // Create the new comment
+        const newComment = new Comment({
+            content: content,
+            author: req.user.id,
+            post: parentComment.post
+        })
+        // Save it in the dastabase
+        await newComment.save();
+        // Save it in comment
+        await Comment.findOneAndUpdate(
+            {_id: commentId},
+            {$push: {responses: newComment}}
+        )
+        // Save it in user
+        await User.findOneAndUpdate(
+            { _id: req.user.id },
+            { $push: { comments: newComment } }
+        )
+        return res.status(200).send({
+            status: 'Success',
+            message: 'reply to comment',
+            newComment: newComment
+        })
+    } catch (error) {
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Internal server error',
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     newComment,
     editComment,
-    deleteComment
+    deleteComment,
+    replyToComment
 }
