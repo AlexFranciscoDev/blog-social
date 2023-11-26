@@ -176,6 +176,11 @@ const replyToComment = async (req, res) => {
             {_id: commentId},
             {$push: {responses: newComment}}
         )
+        // Save comment in post
+        await Post.findOneAndUpdate(
+            { _id: parentComment.post },
+            { $push: { comments: newComment } }
+        )
         // Save it in user
         await User.findOneAndUpdate(
             { _id: req.user.id },

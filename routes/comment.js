@@ -8,4 +8,5 @@ router.put('/edit/:id', check.auth, CommentController.editComment);
 router.delete('/delete/:id', check.auth, CommentController.deleteComment);
 router.post('/reply/:id', check.auth, CommentController.replyToComment);
 
+
 module.exports = router;
