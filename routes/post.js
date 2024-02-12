@@ -23,6 +23,6 @@ router.post('/save', [check.auth, uploads.single('featuredImage')], PostControll
 router.put('/edit/:id', check.auth, PostController.editPost);
 router.delete('/delete/:id', check.auth, PostController.deletePost);
 router.post('/upload/:id', [check.auth, uploads.single('featuredImage')], PostController.upload);
-router.get('/postImage/:filename', check.auth, PostController.getImage);
+router.get('/postImage/:filename', PostController.getImage);
 module.exports = router;
 

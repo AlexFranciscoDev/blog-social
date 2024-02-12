@@ -14,7 +14,7 @@ const { blacklist } = require('../middlewares/auth');
  */
 const signup = (req, res) => {
     const params = req.body;
-    if (!params.name || !params.nick || !params.email || !params.password) {
+    if (!params.name || !params.surname || !params.nick || !params.email || !params.password) {
         return res.status(400).send({
             status: 'Error',
             message: 'User not registered, data not provided',
@@ -81,7 +81,7 @@ const login = (req, res) => {
         if (!pwd) {
             return res.status(400).send({
                 status: 'Error',
-                message: 'User not identified correctly'
+                message: 'User password is not correct'
             })
         }
         const token = jwt.createToken(user);

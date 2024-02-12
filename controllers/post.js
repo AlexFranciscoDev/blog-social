@@ -13,7 +13,7 @@ const postService = require('../services/postService');
  */
 const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().populate('author', 'nick email');
+        const posts = await Post.find().populate('author', 'nick email image');
         if (posts.length <= 0) {
             return req.status(200).send({ status: 'Success', message: 'No posts found' })
         }
@@ -39,6 +39,7 @@ const getAllPosts = async (req, res) => {
  */
 const createPost = (req, res) => {
     const params = req.body;
+    console.log(params);
     if (!params.title || !params.content) {
         return res.status(400).send({
             status: 'Error',

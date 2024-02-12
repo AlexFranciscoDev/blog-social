@@ -25,7 +25,7 @@ router.put('/editProfile', check.auth, UserController.editProfile);
 router.put('/changePassword', check.auth, UserController.changePassword);
 router.delete('/deleteUser', check.auth, UserController.deleteUser);
 router.post('/upload', [check.auth, uploads.single('featuredImage')], UserController.upload);
-router.get('/profileimage/:filename', check.auth, UserController.getProfileImg);
+router.get('/profileimage/:filename', UserController.getProfileImg);
 
 
 
