@@ -1,7 +1,7 @@
 const jwt = require('jwt-simple');
 const moment = require('moment');
 
-const secret = 'SECRET_KEY_SOCIAL_BLOG_19382';
+const secret = process.env.JWT_SECRET || 'SECRET_KEY_SOCIAL_BLOG_19382';
 
 const createToken = (user) => {
     const payload = {

@@ -186,6 +186,7 @@ const changePassword = async (req, res) => {
     const userLogged = req.user.id;
     const params = req.body;
     const password = req.body.password;
+    console.log(params);
     const confirmPassword = req.body.confirmPassword
     if (!params.password || !params.confirmPassword) return res.status(400).send({status: 'Error', message: 'Fill the fields with the new password'})
     if (params.password !== params.confirmPassword) return res.status(400).send({status: 'Error', message: 'The passwords do not match'})
@@ -223,6 +224,53 @@ const changePassword = async (req, res) => {
         })
     })
 }
+
+/**
+ * const changePassword = async (req, res) => {
+    const userLogged = req.user.id;
+    const params = req.body;
+    console.log(params);
+    const currentPassword = req.body.currentPassword;
+    const confirmPassword = req.body.confirmPasswordñ
+    console.log('current password: ' + currentPassword);
+    console.log('confirm password: ' + confirmPassword);
+    if (!params.currentPassword || !params.confirmPassword) return res.status(400).send({status: 'Error', message: 'Fill the fields with the new password'})
+    if (params.currentPassword !== params.confirmPassword) return res.status(400).send({status: 'Error', message: 'The passwords do not match'})
+    let userUpdated = {}
+
+    try {
+        const user = await User.find({_id: userLogged})
+        .catch((error) => {
+            return res.status(400).send({
+                status: 'Error',
+                message: 'User not found',
+              });
+        })
+
+        userUpdated.currentPassword = await bcrypt.hash(currentPassword, 10);
+    } catch (error) {
+        return res.status(400).send({
+            status: 'Error',
+            message: 'An error occurred',
+            error: error.message,
+          });
+    }
+
+    User.findOneAndUpdate({_id: userLogged}, {password: userUpdated.currentPassword}, {new: true})
+    .then((userUpdated) => {
+        return res.status(200).send({
+            status: 'Success',
+            message: 'Password updated'
+        })
+    })
+    .catch((error) => {
+        return res.status(400).send({
+            status: 'Error',
+            message: 'The user cannot be updated'
+        })
+    })
+}
+ */
 
 /**
  * deleteUser

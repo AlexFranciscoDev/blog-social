@@ -13,7 +13,22 @@ const postService = require('../services/postService');
  */
 const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().populate('author', 'nick email image');
+        // Check if i get the page, otherwise use number 1
+        let page = 1;
+        if (req.params.page) page = req.params.page;
+        // Number of posts per page
+        const itemsPerPage = 6;
+        const query = {};
+        const options = {
+            page: page,
+            limit: itemsPerPage,
+            populate: [{
+                path: 'author',
+                select: 'nick email image'
+            }]
+        }
+        const posts = await Post.paginate(query, options);
+        // const posts = await Post.find().populate('author', 'nick email image');
         if (posts.length <= 0) {
             return req.status(200).send({ status: 'Success', message: 'No posts found' })
         }
@@ -27,7 +42,7 @@ const getAllPosts = async (req, res) => {
         return res.status(500).send({
             status: 'Error',
             message: 'Error, something went wrong',
-            error: error
+            error: error.message
         })
     }
 }
@@ -39,7 +54,6 @@ const getAllPosts = async (req, res) => {
  */
 const createPost = (req, res) => {
     const params = req.body;
-    console.log(params);
     if (!params.title || !params.content) {
         return res.status(400).send({
             status: 'Error',
@@ -75,6 +89,7 @@ const createPost = (req, res) => {
             );
         })
         .then((postSaved) => {
+            console.log(postSaved);
             return res.status(200).send({
                 status: 'Success',
                 message: 'Creating post',
@@ -204,13 +219,27 @@ const getPostsByUser = async (req, res) => {
         // If we pass an argument we find for this user, otherwise we find for the logged in user
         let userId = req.user.id;
         if (req.params.id) userId = req.params.id;
+        // Check if i get the page, otherwise use number 1
+        let page = 1;
+        if (req.params.page) page = req.params.page;
+        // Number of posts per page
+        const itemsPerPage = 6;
+        const query = {author: userId};
+        const options = {
+            page: page,
+            limit: itemsPerPage,
+            populate: [{
+                path: 'author'
+            }]
+        }
         if (!req.user) {
             return res.status(401).send({
                 status: 'Error',
                 message: 'User not logged in'
             })
         }
-        const posts = await Post.find({ author: userId })
+        // const posts = await Post.find({ author: userId })
+        const posts = await Post.paginate(query, options);
         if (posts.length === 0) {
             return res.status(404).send({
                 status: 'Success',
