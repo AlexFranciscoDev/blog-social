@@ -1,4 +1,6 @@
+require('dotenv').config();
 const { connection } = require('./connection');
+
 
 // Dependencies
 const express = require('express');
@@ -25,7 +27,7 @@ const commentRoutes = require('./routes/comment');
 app.get('/test', (req, res) => {
     return res.status(200).send({
         status: 'Success',
-        message: 'Testing server blog'
+        message: 'Testing server blogs'
     })
 })
 
