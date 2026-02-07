@@ -344,16 +344,19 @@ const upload = (req, res) => {
 const getProfileImg = (req, res) => {
     const file = req.params.filename;
     const filePath = './uploads/avatars/' + file;
-    console.log(filePath)
+    const defaultImagePath = './uploads/avatars/default.jpg';
+    
     fs.stat(filePath, (error, exists) => {
-        if (!exists) {
-            return res.status(404).send({
-                status: 'Error',
-                message: 'Image not found'
-            })
+        // Si hay error o el archivo no existe
+        if (error || !exists) {
+            // Devolver la imagen por defecto en lugar de error
+            console.log('Image not found, returning default image');
+            return res.sendFile(path.resolve(defaultImagePath));
         }
+        
+        // Si el archivo SÍ existe, devolver la imagen solicitada
+        return res.sendFile(path.resolve(filePath));
     })
-    return res.sendFile(path.resolve(filePath));
 }
 
 
