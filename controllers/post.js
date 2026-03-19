@@ -60,24 +60,17 @@ const createPost = (req, res) => {
             message: 'Fill all the required fields'
         })
     }
-    // File settings
-    let imageName = req.file.originalname;
-    let imageSplit = imageName.split('\.')
-    let extension = imageSplit[1];
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-    if (!allowedExtensions.includes(extension)) {
-        const filePath = req.file.path;
-        fs.unlinkSync(filePath);
+    if (!req.file) {
         return res.status(400).send({
             status: 'Error',
-            message: 'File extension not supported'
+            message: 'Image is required'
         })
     }
     // Create post object
     const newPost = new Post({
         title: params.title,
         content: params.content,
-        image: req.file.filename,
+        image: req.file.path,
         author: req.user.id
     });
 
@@ -274,27 +267,13 @@ const upload = async (req, res) => {
             message: 'File not found'
         })
     }
-    let image = req.file.originalname;
-    let imageSplit = image.split('\.');
-    let extension = imageSplit[1];
-    let filePath;
-    if (extension !== 'jpg' && extension !== 'png' && extension !== 'jpeg' && extension !== 'gif') {
-        filePath = req.file.path;
-        fs.unlinkSync(filePath);
-        return res.status(400).send({
-            status: 'Error',
-            message: 'File extension not supported'
-        })
-    }
-
     let postToEdit;
     try {
         // Get the post to edit
         let postToEdit = await postService.getPostById(postId);
         // Check if its not my post
         if (postService.compareUserAuthor(req.user.id, postToEdit.author)) {
-            console.log('entrando en condicion');
-            const update = await Post.findOneAndUpdate({ _id: postId }, { image: req.file.filename }, { new: true })
+            const update = await Post.findOneAndUpdate({ _id: postId }, { image: req.file.path }, { new: true })
             return res.status(200).send({
                 status: 'Success',
                 message: 'Editing image post',
@@ -302,10 +281,7 @@ const upload = async (req, res) => {
             })
         }
     } catch (error) {
-        // Check if the post exists
         if (!postToEdit) {
-            filePath = req.file.path;
-            fs.unlinkSync(filePath);
             return res.status(404).send({ status: 'Error', message: 'Post not found' })
         }
         return res.status(500).send({
@@ -325,15 +301,15 @@ const upload = async (req, res) => {
 const getImage = (req, res) => {
     const file = req.params.filename;
     const filePath = './uploads/posts/' + file;
-    fs.stat(filePath, (error, exists) => {
-        if (!exists) {
+    fs.stat(filePath, (error, stats) => {
+        if (error || !stats) {
             return res.status(404).send({
                 status: 'Error',
                 message: 'Image not found'
             })
         }
+        return res.sendFile(path.resolve(filePath));
     })
-    return res.sendFile(path.resolve(filePath));
 }
 
 module.exports = {

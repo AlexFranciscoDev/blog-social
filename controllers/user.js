@@ -308,18 +308,7 @@ const upload = (req, res) => {
             message: 'File not found'
         })
     }
-    let image = req.file.originalname;
-    let imageSplit = image.split('\.');
-    let extension = imageSplit[1];
-    if (extension !== 'jpg' && extension !== 'png' && extension !== 'jpeg' && extension !== 'gif') {
-        const filePath = req.file.path;
-        const fileDelete = fs.unlinkSync(filePath);
-        return res.status(400).send({
-            status: 'Error',
-            message: 'File extension not supported'
-        })
-    }
-    User.findOneAndUpdate({_id: req.user.id}, {image: req.file.filename}, {new: true})
+    User.findOneAndUpdate({_id: req.user.id}, {image: req.file.path}, {new: true})
     .then((userUpdated) => {
         return res.status(200).send({
             status: 'Success',

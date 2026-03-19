@@ -41,4 +41,13 @@ app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 
+// Global error handler — always returns JSON instead of HTML
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    return res.status(err.status || 500).send({
+        status: 'Error',
+        message: err.message || 'Internal Server Error'
+    });
+});
+
 connection();
