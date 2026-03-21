@@ -22,6 +22,7 @@ const getAllPosts = async (req, res) => {
         const options = {
             page: page,
             limit: itemsPerPage,
+            sort: { created_at: -1 },
             populate: [{
                 path: 'author',
                 select: 'nick email image'
@@ -221,6 +222,7 @@ const getPostsByUser = async (req, res) => {
         const options = {
             page: page,
             limit: itemsPerPage,
+            sort: { created_at: -1 },
             populate: [{
                 path: 'author'
             }]
